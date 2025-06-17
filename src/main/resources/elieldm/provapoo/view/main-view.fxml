@@ -28,7 +28,7 @@
             </menus>
         </MenuBar>
         <VBox alignment="CENTER" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="30.0" AnchorPane.bottomAnchor="0.0">
-            <Label text="Bem-vindo ao Sistema Acadêmico!" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+            <Label text="Sistema Acadêmico do Eliel Dias Matos 💪!" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
             <Label text="Utilize o menu 'Cadastros' para começar." style="-fx-font-size: 14px;"/>
             <padding>
                 <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>

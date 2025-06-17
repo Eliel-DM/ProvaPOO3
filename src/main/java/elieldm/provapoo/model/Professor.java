@@ -1,14 +1,9 @@
 package elieldm.provapoo.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-
 import java.util.HashSet;
 import java.util.Set;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "professores")
 public class Professor {
@@ -20,13 +15,13 @@ public class Professor {
     @Column(nullable = false, length = 100)
     private String nome;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(nullable = false, length = 150)
     private String email;
 
     @Column(nullable = false, length = 100)
     private String formacao;
 
-    @ManyToMany
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinTable(
             name = "professor_disciplina",
             joinColumns = @JoinColumn(name = "professor_id"),
@@ -34,49 +29,46 @@ public class Professor {
     )
     private Set<Disciplina> disciplinas = new HashSet<>();
 
+    public Professor() {}
+
     public Professor(String nome, String email, String formacao) {
         this.nome = nome;
         this.email = email;
         this.formacao = formacao;
     }
 
-    public Set<Disciplina> getDisciplinas() {
-        return disciplinas;
-    }
+    // getters e setters omitidos para brevidade...
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
+    public String getFormacao() { return formacao; }
+    public void setFormacao(String formacao) { this.formacao = formacao; }
+
+    public Set<Disciplina> getDisciplinas() { return disciplinas; }
 
     public void setDisciplinas(Set<Disciplina> disciplinas) {
-        this.disciplinas = disciplinas;
+        this.disciplinas.clear();
+        if (disciplinas != null) {
+            for (Disciplina d : disciplinas) {
+                addDisciplina(d);
+            }
+        }
     }
 
-    public String getFormacao() {
-        return formacao;
+    public void addDisciplina(Disciplina disciplina) {
+        disciplinas.add(disciplina);
+        disciplina.getProfessores().add(this);
     }
 
-    public void setFormacao(String formacao) {
-        this.formacao = formacao;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
+    public void removeDisciplina(Disciplina disciplina) {
+        disciplinas.remove(disciplina);
+        disciplina.getProfessores().remove(this);
     }
 }

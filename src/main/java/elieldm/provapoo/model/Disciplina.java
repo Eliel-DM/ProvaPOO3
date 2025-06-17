@@ -18,11 +18,16 @@ public class Disciplina {
     @Column(length = 255)
     private String descricao;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "curso_id", nullable = false)
     private Curso curso;
 
-    @ManyToMany(mappedBy = "disciplinas")
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @JoinTable(
+            name = "professor_disciplina",
+            joinColumns = @JoinColumn(name = "disciplina_id"),
+            inverseJoinColumns = @JoinColumn(name = "professor_id")
+    )
     private Set<Professor> professores = new HashSet<>();
 
     public Disciplina() {
@@ -34,6 +39,7 @@ public class Disciplina {
         this.curso = curso;
     }
 
+    // Getters e Setters
     public Long getId() {
         return id;
     }
@@ -71,6 +77,19 @@ public class Disciplina {
     }
 
     public void setProfessores(Set<Professor> professores) {
-        this.professores = professores;
+        this.professores.clear();
+        if (professores != null) {
+            this.professores.addAll(professores);
+        }
+    }
+
+    public void addProfessor(Professor professor) {
+        this.professores.add(professor);
+        professor.getDisciplinas().add(this);
+    }
+
+    public void removeProfessor(Professor professor) {
+        this.professores.remove(professor);
+        professor.getDisciplinas().remove(this);
     }
 }

@@ -1,20 +1,14 @@
 package elieldm.provapoo.controller;
 
-import elieldm.provapoo.dao.CursoDAO;
-import elieldm.provapoo.dao.DisciplinaDAO;
-import elieldm.provapoo.dao.ProfessorDAO;
-import elieldm.provapoo.model.Curso;
-import elieldm.provapoo.model.Disciplina;
-import elieldm.provapoo.model.Professor;
+import elieldm.provapoo.dao.*;
+import elieldm.provapoo.model.*;
 import elieldm.provapoo.utils.AlertUtil;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.beans.property.SimpleStringProperty;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -55,30 +49,34 @@ public class DisciplinaController {
         listaProfessores = FXCollections.observableArrayList();
         professoresSelecionados = new HashSet<>();
 
+        configurarComboBoxes();
+        configurarTableView();
+        loadData();
+    }
+
+    private void configurarComboBoxes() {
         cmbCurso.setItems(listaCursos);
         cmbCurso.setConverter(new javafx.util.StringConverter<Curso>() {
-            @Override
-            public String toString(Curso curso) {
+            @Override public String toString(Curso curso) {
                 return curso != null ? curso.getNome() : "";
             }
-            @Override
-            public Curso fromString(String string) {
+            @Override public Curso fromString(String string) {
                 return null;
             }
         });
 
         cmbProfessor.setItems(listaProfessores);
         cmbProfessor.setConverter(new javafx.util.StringConverter<Professor>() {
-            @Override
-            public String toString(Professor professor) {
+            @Override public String toString(Professor professor) {
                 return professor != null ? professor.getNome() : "";
             }
-            @Override
-            public Professor fromString(String string) {
+            @Override public Professor fromString(String string) {
                 return null;
             }
         });
+    }
 
+    private void configurarTableView() {
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
         colDescricao.setCellValueFactory(new PropertyValueFactory<>("descricao"));
@@ -94,167 +92,8 @@ public class DisciplinaController {
         });
 
         tableViewDisciplinas.setItems(listaDisciplinas);
-
         tableViewDisciplinas.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> showDisciplinaDetails(newValue));
-
-        loadData();
-    }
-
-    private void showDisciplinaDetails(Disciplina disciplina) {
-        if (disciplina != null) {
-            txtId.setText(String.valueOf(disciplina.getId()));
-            txtNome.setText(disciplina.getNome());
-            txtDescricao.setText(disciplina.getDescricao());
-            cmbCurso.getSelectionModel().select(disciplina.getCurso());
-
-            professoresSelecionados.clear();
-            professoresSelecionados.addAll(disciplina.getProfessores());
-            updateProfessoresSelecionadosLabel();
-        } else {
-            handleClear();
-        }
-    }
-
-    @FXML
-    private void handleAddProfessor() {
-        Professor selectedProfessor = cmbProfessor.getSelectionModel().getSelectedItem();
-        if (selectedProfessor != null) {
-            if (!professoresSelecionados.contains(selectedProfessor)) {
-                professoresSelecionados.add(selectedProfessor);
-                updateProfessoresSelecionadosLabel();
-            } else {
-                AlertUtil.showWarningAlert("Duplicidade", "Professor já adicionado a esta disciplina.");
-            }
-        } else {
-            AlertUtil.showWarningAlert("Seleção Necessária", "Selecione um professor para adicionar.");
-        }
-    }
-
-    @FXML
-    private void handleRemoveProfessor() {
-        Professor selectedProfessor = cmbProfessor.getSelectionModel().getSelectedItem();
-        if (selectedProfessor != null) {
-            if (professoresSelecionados.remove(selectedProfessor)) {
-                updateProfessoresSelecionadosLabel();
-            } else {
-                AlertUtil.showWarningAlert("Não Encontrado", "Professor não está na lista de selecionados.");
-            }
-        } else {
-            AlertUtil.showWarningAlert("Seleção Necessária", "Selecione um professor para remover.");
-        }
-    }
-
-    private void updateProfessoresSelecionadosLabel() {
-        if (professoresSelecionados.isEmpty()) {
-            lblProfessoresSelecionados.setText("Nenhum professor selecionado");
-        } else {
-            String nomes = professoresSelecionados.stream()
-                    .map(Professor::getNome)
-                    .collect(Collectors.joining(", "));
-            lblProfessoresSelecionados.setText("Professores Associados: " + nomes);
-        }
-    }
-
-    @FXML
-    private void handleNew() {
-        handleClear();
-    }
-
-    @FXML
-    private void handleSave() {
-        try {
-            String nome = txtNome.getText();
-            String descricao = txtDescricao.getText();
-            Curso curso = cmbCurso.getSelectionModel().getSelectedItem();
-
-            if (nome.isEmpty() || curso == null) {
-                AlertUtil.showErrorAlert("Erro de Validação", "Nome da Disciplina e Curso são obrigatórios.");
-                return;
-            }
-
-            Disciplina novaDisciplina = new Disciplina(nome, descricao, curso);
-            novaDisciplina.setProfessores(professoresSelecionados);
-            disciplinaDAO.create(novaDisciplina);
-            AlertUtil.showInformationAlert("Sucesso", "Disciplina salva com sucesso!");
-            loadDisciplinas();
-            handleClear();
-        } catch (Exception e) {
-            AlertUtil.showErrorAlert("Erro", "Erro ao salvar disciplina: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    private void handleUpdate() {
-        try {
-            Long id = Long.valueOf(txtId.getText());
-            String nome = txtNome.getText();
-            String descricao = txtDescricao.getText();
-            Curso curso = cmbCurso.getSelectionModel().getSelectedItem();
-
-            if (nome.isEmpty() || curso == null) {
-                AlertUtil.showErrorAlert("Erro de Validação", "Nome da Disciplina e Curso são obrigatórios.");
-                return;
-            }
-
-            Disciplina disciplinaToUpdate = disciplinaDAO.findById(id);
-            if (disciplinaToUpdate != null) {
-                disciplinaToUpdate.setNome(nome);
-                disciplinaToUpdate.setDescricao(descricao);
-                disciplinaToUpdate.setCurso(curso);
-                disciplinaToUpdate.setProfessores(professoresSelecionados);
-                disciplinaDAO.update(disciplinaToUpdate);
-                AlertUtil.showInformationAlert("Sucesso", "Disciplina atualizada com sucesso!");
-                loadDisciplinas();
-                handleClear();
-            } else {
-                AlertUtil.showWarningAlert("Não Encontrado", "Disciplina com ID " + id + " não encontrada.");
-            }
-        } catch (NumberFormatException e) {
-            AlertUtil.showErrorAlert("Erro de Entrada", "ID deve ser um número válido.");
-        } catch (Exception e) {
-            AlertUtil.showErrorAlert("Erro", "Erro ao atualizar disciplina: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    private void handleDelete() {
-        try {
-            Long id = Long.valueOf(txtId.getText());
-            Disciplina disciplinaToDelete = disciplinaDAO.findById(id);
-            if (disciplinaToDelete != null) {
-                disciplinaDAO.delete(disciplinaToDelete);
-                AlertUtil.showInformationAlert("Sucesso", "Disciplina excluída com sucesso!");
-                loadDisciplinas();
-                handleClear();
-            } else {
-                AlertUtil.showWarningAlert("Não Encontrado", "Disciplina com ID " + id + " não encontrada.");
-            }
-        } catch (NumberFormatException e) {
-            AlertUtil.showErrorAlert("Erro de Entrada", "ID deve ser um número válido para exclusão.");
-        } catch (Exception e) {
-            AlertUtil.showErrorAlert("Erro", "Erro ao excluir disciplina: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    private void handleClear() {
-        txtId.clear();
-        txtNome.clear();
-        txtDescricao.clear();
-        cmbCurso.getSelectionModel().clearSelection();
-        cmbProfessor.getSelectionModel().clearSelection();
-        professoresSelecionados.clear();
-        updateProfessoresSelecionadosLabel();
-        tableViewDisciplinas.getSelectionModel().clearSelection();
-    }
-
-    @FXML
-    private void handleListAll() {
-        loadDisciplinas();
     }
 
     private void loadData() {
@@ -277,7 +116,135 @@ public class DisciplinaController {
 
     private void loadDisciplinas() {
         listaDisciplinas.clear();
-        List<Disciplina> disciplinas = disciplinaDAO.findAllWithProfessores();
+        List<Disciplina> disciplinas = disciplinaDAO.findAllWithProfessoresAndCurso();
         listaDisciplinas.addAll(disciplinas);
+    }
+
+    private void showDisciplinaDetails(Disciplina disciplina) {
+        if (disciplina != null) {
+            Disciplina disciplinaCompleta = disciplinaDAO.findByIdWithProfessores(disciplina.getId());
+
+            txtId.setText(String.valueOf(disciplinaCompleta.getId()));
+            txtNome.setText(disciplinaCompleta.getNome());
+            txtDescricao.setText(disciplinaCompleta.getDescricao());
+            cmbCurso.getSelectionModel().select(disciplinaCompleta.getCurso());
+
+            professoresSelecionados.clear();
+            professoresSelecionados.addAll(disciplinaCompleta.getProfessores());
+            updateProfessoresSelecionadosLabel();
+        } else {
+            handleClear();
+        }
+    }
+
+    private void updateProfessoresSelecionadosLabel() {
+        if (professoresSelecionados.isEmpty()) {
+            lblProfessoresSelecionados.setText("Nenhum professor selecionado");
+        } else {
+            String nomes = professoresSelecionados.stream()
+                    .map(Professor::getNome)
+                    .collect(Collectors.joining(", "));
+            lblProfessoresSelecionados.setText("Professores: " + nomes);
+        }
+    }
+
+    @FXML
+    private void handleAddProfessor() {
+        Professor selected = cmbProfessor.getSelectionModel().getSelectedItem();
+        if (selected != null && !professoresSelecionados.contains(selected)) {
+            professoresSelecionados.add(selected);
+            updateProfessoresSelecionadosLabel();
+        }
+    }
+
+    @FXML
+    private void handleRemoveProfessor() {
+        Professor selected = cmbProfessor.getSelectionModel().getSelectedItem();
+        if (selected != null && professoresSelecionados.remove(selected)) {
+            updateProfessoresSelecionadosLabel();
+        }
+    }
+
+    @FXML
+    private void handleNew() {
+        handleClear();
+    }
+
+    @FXML
+    private void handleSave() {
+        try {
+            String nome = txtNome.getText().trim();
+            String descricao = txtDescricao.getText().trim();
+            Curso curso = cmbCurso.getSelectionModel().getSelectedItem();
+
+            if (nome.isEmpty() || curso == null) {
+                AlertUtil.showErrorAlert("Erro", "Nome e curso são obrigatórios!");
+                return;
+            }
+
+            if (txtId.getText().isEmpty()) {
+                // Novo registro
+                Disciplina novaDisciplina = new Disciplina(nome, descricao, curso);
+                novaDisciplina.setProfessores(new HashSet<>(professoresSelecionados));
+                disciplinaDAO.create(novaDisciplina);
+                AlertUtil.showInformationAlert("Sucesso", "Disciplina criada com sucesso!");
+            } else {
+                // Atualização
+                Long id = Long.valueOf(txtId.getText());
+                Disciplina disciplina = new Disciplina(nome, descricao, curso);
+                disciplina.setId(id);
+                disciplina.setProfessores(new HashSet<>(professoresSelecionados));
+                disciplinaDAO.update(disciplina);
+                AlertUtil.showInformationAlert("Sucesso", "Disciplina atualizada com sucesso!");
+            }
+
+            loadDisciplinas();
+            handleClear();
+        } catch (Exception e) {
+            AlertUtil.showErrorAlert("Erro", "Erro ao salvar: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleDelete() {
+        try {
+            if (txtId.getText().isEmpty()) {
+                AlertUtil.showWarningAlert("Aviso", "Selecione uma disciplina para excluir");
+                return;
+            }
+
+            Long id = Long.valueOf(txtId.getText());
+            Disciplina disciplina = disciplinaDAO.findById(id);
+
+            if (disciplina != null && AlertUtil.showConfirmationAlert("Confirmar",
+                    "Tem certeza que deseja excluir esta disciplina?")) {
+
+                disciplinaDAO.delete(disciplina);
+                AlertUtil.showInformationAlert("Sucesso", "Disciplina excluída com sucesso!");
+                loadDisciplinas();
+                handleClear();
+            }
+        } catch (Exception e) {
+            AlertUtil.showErrorAlert("Erro", "Erro ao excluir: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleClear() {
+        txtId.clear();
+        txtNome.clear();
+        txtDescricao.clear();
+        cmbCurso.getSelectionModel().clearSelection();
+        cmbProfessor.getSelectionModel().clearSelection();
+        professoresSelecionados.clear();
+        updateProfessoresSelecionadosLabel();
+        tableViewDisciplinas.getSelectionModel().clearSelection();
+    }
+
+    @FXML
+    private void handleListAll() {
+        loadDisciplinas();
     }
 }
