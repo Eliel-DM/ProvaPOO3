@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="10.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="elieldm.provapoo.controller.TurmaController">
+    <padding>
+        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+    </padding>
+    <Label style="-fx-font-size: 18px; -fx-font-weight: bold;" text="Cadastro de Turmas" />
+
+    <GridPane hgap="10.0" vgap="10.0">
+        <Label text="ID:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+        <TextField fx:id="txtId" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+        <Label text="Semestre:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+        <TextField fx:id="txtSemestre" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+        <Label text="Horário:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+        <TextField fx:id="txtHorario" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+        <Label text="Disciplina:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+        <ComboBox fx:id="cmbDisciplina" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+        <Label text="Professor:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+        <ComboBox fx:id="cmbProfessor" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+    </GridPane>
+
+    <HBox spacing="10.0" alignment="CENTER_LEFT">
+        <Button text="Novo" onAction="#handleNew" />
+        <Button text="Salvar" onAction="#handleSave" />
+        <Button text="Atualizar" onAction="#handleUpdate" />
+        <Button text="Excluir" onAction="#handleDelete" />
+        <Button text="Limpar" onAction="#handleClear" />
+        <Button text="Listar Todos" onAction="#handleListAll" />
+    </HBox>
+
+    <TableView fx:id="tableViewTurmas" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colId" prefWidth="50.0" text="ID" />
+            <TableColumn fx:id="colSemestre" prefWidth="100.0" text="Semestre" />
+            <TableColumn fx:id="colHorario" prefWidth="100.0" text="Horário" />
+            <TableColumn fx:id="colDisciplina" prefWidth="200.0" text="Disciplina" />
+            <TableColumn fx:id="colProfessor" prefWidth="200.0" text="Professor" />
+        </columns>
+    </TableView>
+</VBox>

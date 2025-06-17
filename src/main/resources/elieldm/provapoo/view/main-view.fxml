@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="elieldm.provapoo.controller.MainController"
+            prefHeight="400.0" prefWidth="600.0">
+
+    <children>
+        <MenuBar AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <menus>
+                <Menu text="Cadastros">
+                    <items>
+                        <MenuItem text="Cursos" onAction="#handleCadastroCursos"/>
+                        <MenuItem text="Disciplinas" onAction="#handleCadastroDisciplinas"/>
+                        <MenuItem text="Professores" onAction="#handleCadastroProfessores"/>
+                        <MenuItem text="Turmas" onAction="#handleCadastroTurmas"/>
+                    </items>
+                </Menu>
+                <Menu text="Ajuda">
+                    <items>
+                        <MenuItem text="Sobre"/>
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+        <VBox alignment="CENTER" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="30.0" AnchorPane.bottomAnchor="0.0">
+            <Label text="Bem-vindo ao Sistema Acadêmico!" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+            <Label text="Utilize o menu 'Cadastros' para começar." style="-fx-font-size: 14px;"/>
+            <padding>
+                <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>
+            </padding>
+        </VBox>
+    </children>
+</AnchorPane>
